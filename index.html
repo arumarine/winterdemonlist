@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pointercrate Demonlist</title>
+    <!-- Montserrat Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f4f5f7;
+            color: #222;
+        }
+
+        /* Top Header Bar */
+        .header-bar {
+            background: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 40px;
+            border-bottom: 1px solid #d1d5db;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .header-logo {
+            background: #d32f2f;
+            color: white;
+            padding: 4px 10px;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            border-radius: 2px;
+        }
+
+        .header-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .header-links span, .header-links button {
+            cursor: pointer;
+            color: #333;
+            background: none;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .header-links span:hover, .header-links button:hover {
+            color: #d32f2f;
+        }
+
+        .auth-btn {
+            background: #111 !important;
+            color: white !important;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+
+        /* Sub-navigation tabs */
+        .sub-nav {
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            gap: 120px;
+            padding: 14px 0;
+            border-bottom: 1px solid #d1d5db;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .sub-nav span {
+            cursor: pointer;
+        }
+
+        .sub-nav span.active {
+            color: #111;
+            border-bottom: 2px solid #111;
+            padding-bottom: 4px;
+        }
+
+        /* Main Container Layout */
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Cards with Dotted Outlines */
+        .card {
+            background: #fff;
+            border: 2px dotted #cbd5e1;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            position: relative;
+        }
+
+        /* Level Item Card */
+        .level-card {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .level-thumbnail {
+            width: 210px;
+            height: 115px;
+            background: #111;
+            border-radius: 2px;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .level-info h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 6px;
+        }
+
+        .level-info p {
+            font-size: 13px;
+            color: #444;
+            margin-bottom: 4px;
+        }
+
+        .points {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        /* Sidebar Styling */
+        .sidebar-title {
+            font-size: 17px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 6px;
+            color: #111;
+        }
+
+        .sidebar-subtitle {
+            font-size: 11px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .sidebar hr {
+            border: none;
+            border-top: 1px dotted #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        .editor-list {
+            list-style: none;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            color: #333;
+        }
+
+        /* Admin Controls */
+        .admin-controls {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            gap: 5px;
+        }
+
+        body.logged-in .admin-controls {
+            display: flex;
+        }
+
+        .btn {
+            background: #eee;
+            border: 1px solid #ccc;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .btn-danger {
+            background: #ffe3e3;
+            color: #c92a2a;
+            border-color: #ffa8a8;
+        }
+
+        .add-level-bar {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        body.logged-in .add-level-bar {
+            display: block;
+        }
+
+        .add-btn {
+            width: 100%;
+            background: #2b8a3e;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Modal Dialog Styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: #fff;
+            padding: 30px;
+            border-radius: 6px;
+            width: 450px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #111;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #444;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #111;
+        }
+
+        /* Dropzone / Clipboard area */
+        .dropzone {
+            border: 2px dashed #cbd5e1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 4px;
+            background: #f8fafc;
+            cursor: pointer;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .dropzone:hover {
+            border-color: #94a3b8;
+        }
+
+        .preview-thumb {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            margin-top: 8px;
+            border-radius: 2px;
+            display: none;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-cancel {
+            background: #e2e8f0;
+            color: #333;
+        }
+
+        .btn-save {
+            background: #2b8a3e;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <div class="header-bar">
+        <div class="header-logo">POINTERCRATE.COM</div>
+        <div class="header-links">
+            <span>POINTERCRATE User Area</span>
+            <span>Geometry Dash RATED+ LIST ▾</span>
+            <span>Geometry Dash DEMONLIST ▾</span>
+            <span>🇺🇸 EN ▾</span>
+            <span>🌙</span>
+            <button class="auth-btn" id="authBtn" onclick="toggleAuth()">🔒 Editor Login</button>
+        </div>
+    </div>
+
+    <!-- Sub Navigation Tabs -->
+    <div class="sub-nav">
+        <span class="active">Main List</span>
+        <span>Extended List</span>
+        <span>Legacy List</span>
+    </div>
+
+    <!-- Main Container Layout -->
+    <div class="container">
+        
+        <!-- Add Level Button (Visible when logged in) -->
+        <div class="add-level-bar">
+            <button class="add-btn" onclick="openAddModal()">+ Add New Level</button>
+        </div>
+
+        <div class="content-grid">
+            
+            <!-- Left Side: Level List -->
+            <div id="levelListContainer">
+                <p style="text-align:center; padding: 20px;">Loading demonlist data...</p>
+            </div>
+
+            <!-- Right Side: Sidebar (List Editors) -->
+            <div class="sidebar">
+                <div class="card">
+                    <div class="sidebar-title">List Editors</div>
+                    <div class="sidebar-subtitle">Contact any of these people if you have problems with the list or want to see a specific thing changed.</div>
+                    <hr>
+                    <ul class="editor-list" id="editorListContainer">
+                        <li>ARUMARINE</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Add / Edit Level Modal Dialog -->
+    <div class="modal-overlay" id="levelModal">
+        <div class="modal">
+            <h3 id="modalTitle">Add New Level</h3>
+            <input type="hidden" id="editIndex" value="-1">
+            <div class="form-group">
+                <label>Level Name</label>
+                <input type="text" id="modalName" placeholder="e.g. Slaughterhouse">
+            </div>
+            <div class="form-group">
+                <label>Publisher</label>
+                <input type="text" id="modalPublisher" placeholder="e.g. icedcave">
+            </div>
+            <div class="form-group">
+                <label>Points Text</label>
+                <input type="text" id="modalPoints" value="35.00 (76%) — 350.00 (100%) points">
+            </div>
+
+            <!-- Thumbnail Input Options -->
+            <div class="form-group">
+                <label>YouTube Video Link (Auto-fetches Thumbnail)</label>
+                <input type="text" id="modalYoutube" placeholder="https://www.youtube.com/watch?v=..." oninput="fetchYoutubeThumb()">
+            </div>
+
+            <div class="form-group">
+                <label>Or Drop / Paste / Upload Image</label>
+                <div class="dropzone" id="dropZone" ondragover="event.preventDefault()" ondrop="handleDrop(event)" onclick="document.getElementById('fileInput').click()" tabindex="0" onpaste="handlePaste(event)">
+                    <span>📁 Click, Drag & Drop, or Press Ctrl+V to Paste Image</span>
+                    <input type="file" id="fileInput" style="display:none" accept="image/*" onchange="handleFileSelect(event)">
+                </div>
+                <img id="imagePreview" class="preview-thumb" alt="Preview">
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn btn-save" id="saveBtn" onclick="saveLevelData()">Save Level</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GH_USERNAME = "arumarine";
+        const GH_REPO = "winterdemonlist";
+        const DATA_PATH = "data.json";
+
+        let levels = [];
+        let fileSha = "";
+        let currentThumbData = "";
+        let githubToken = localStorage.getItem('gh_admin_token') || "";
+
+        window.onload = () => {
+            if (githubToken) {
+                document.body.classList.add('logged-in');
+                document.getElementById('authBtn').innerText = "🔓 Logout";
+            }
+            fetchListData();
+        };
+
+        // Fetch data live from your GitHub repo's data.json
+        async function fetchListData() {
+            try {
+                const res = await fetch(`https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/${DATA_PATH}?t=${Date.now()}`);
+                if (!res.ok) throw new Error("Could not find data.json");
+                levels = await res.json();
+                
+                // Get file SHA required by GitHub API for updating later
+                const metaRes = await fetch(`https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/${DATA_PATH}`);
+                const metaData = await metaRes.json();
+                fileSha = metaData.sha;
+
+                render();
+            } catch (e) {
+                document.getElementById('levelListContainer').innerHTML = `<p style="color:red; text-align:center;">Failed to load data.json. Ensure file exists in your repository.</p>`;
+            }
+        }
+
+        function render() {
+            const container = document.getElementById('levelListContainer');
+            container.innerHTML = '';
+            levels.forEach((lvl, index) => {
+                let thumbContent = lvl.thumb 
+                    ? `<img src="${lvl.thumb}" class="level-thumbnail" style="object-fit:cover;">`
+                    : `<div class="level-thumbnail" style="background: linear-gradient(135deg, #111, #444);">${lvl.name}</div>`;
+
+                container.innerHTML += `
+                    <div class="card level-card">
+                        <div class="admin-controls">
+                            <button class="btn" onclick="openEditModal(${index})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteLevel(${index})">Delete</button>
+                        </div>
+                        ${thumbContent}
+                        <div class="level-info">
+                            <h2>#${index + 1} - ${lvl.name}</h2>
+                            <p>published by <a href="#">${lvl.publisher}</a></p>
+                            <div class="points">${lvl.points}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Token Login / Logout Handler
+        async function toggleAuth() {
+            if (!githubToken) {
+                let tokenInput = prompt("Enter your GitHub Personal Access Token:");
+                if (!tokenInput) return;
+
+                let res = await fetch("https://api.github.com/user", {
+                    headers: { "Authorization": `token ${tokenInput.trim()}` }
+                });
+
+                if (res.ok) {
+                    githubToken = tokenInput.trim();
+                    localStorage.setItem('gh_admin_token', githubToken);
+                    document.body.classList.add('logged-in');
+                    document.getElementById('authBtn').innerText = "🔓 Logout";
+                    alert("Token verified! Admin access granted.");
+                } else {
+                    alert("Invalid GitHub Token! Access denied.");
+                }
+            } else {
+                localStorage.removeItem('gh_admin_token');
+                githubToken = "";
+                document.body.classList.remove('logged-in');
+                document.getElementById('authBtn').innerText = "🔒 Editor Login";
+                alert("Logged out of Editor mode.");
+            }
+        }
+
+        // Push updates directly back to GitHub API
+        async function commitToGitHub() {
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.innerText = "Saving to GitHub...";
+            saveBtn.disabled = true;
+
+            const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(levels, null, 2))));
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/${DATA_PATH}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: "Update demonlist data",
+                        content: contentEncoded,
+                        sha: fileSha
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    fileSha = data.content.sha;
+                    alert("Demonlist successfully updated on GitHub!");
+                    closeModal();
+                    render();
+                } else {
+                    alert("Error saving data. Make sure your GitHub Token has 'repo' permissions.");
+                }
+            } catch(e) {
+                alert("Network error while connecting to GitHub.");
+            } finally {
+                saveBtn.innerText = "Save Level";
+                saveBtn.disabled = false;
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "Add New Level";
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('modalName').value = "";
+            document.getElementById('modalPublisher').value = "";
+            document.getElementById('modalPoints').value = "35.00 (76%) — 350.00 (100%) points";
+            document.getElementById('modalYoutube').value = "";
+            setThumbnail("");
+            document.getElementById('levelModal').style.display = 'flex';
+        }
+
+        function openEditModal(index) {
+            let lvl = levels[index];
+            document.getElementById('modalTitle').innerText = "Edit Level #" + (index + 1);
+            document.getElementById('editIndex').value = index;
+            document.getElementById('modalName').value = lvl.name;
+            document.getElementById('modalPublisher').value = lvl.publisher;
+            document.getElementById('modalPoints').value = lvl.points;
+            document.getElementById('modalYoutube').value = "";
+            setThumbnail(lvl.thumb || "");
+            document.getElementById('levelModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('levelModal').style.display = 'none';
+        }
+
+        function setThumbnail(dataUrl) {
+            currentThumbData = dataUrl;
+            let preview = document.getElementById('imagePreview');
+            if (dataUrl) {
+                preview.src = dataUrl;
+                preview.style.display = 'block';
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        }
+
+        // YouTube Thumbnail Extractor
+        function fetchYoutubeThumb() {
+            let url = document.getElementById('modalYoutube').value.trim();
+            let videoId = "";
+            if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1]?.split('?')[0];
+            } else if (url.includes('watch?v=')) {
+                videoId = url.split('watch?v=')[1]?.split('&')[0];
+            }
+            if (videoId) {
+                let thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                setThumbnail(thumbUrl);
+            }
+        }
+
+        // File Selection / Drag and Drop
+        function handleFileSelect(event) {
+            let file = event.target.files[0];
+            if (file) processFile(file);
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            let file = event.dataTransfer.files[0];
+            if (file) processFile(file);
+        }
+
+        // Clipboard Paste Support
+        function handlePaste(event) {
+            let items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let index in items) {
+                let item = items[index];
+                if (item.kind === 'file') {
+                    let file = item.getAsFile();
+                    if (file) processFile(file);
+                }
+            }
+        }
+
+        function processFile(file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                setThumbnail(e.target.result);
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function saveLevelData() {
+            let index = parseInt(document.getElementById('editIndex').value);
+            let name = document.getElementById('modalName').value.trim();
+            let publisher = document.getElementById('modalPublisher').value.trim();
+            let points = document.getElementById('modalPoints').value.trim();
+
+            if (!name) {
+                alert("Please enter a level name.");
+                return;
+            }
+
+            let levelData = {
+                name: name,
+                publisher: publisher || "Unknown",
+                points: points,
+                thumb: currentThumbData
+            };
+
+            if (index === -1) {
+                levels.push(levelData);
+            } else {
+                levels[index] = levelData;
+            }
+
+            commitToGitHub();
+        }
+
+        function deleteLevel(index) {
+            if (confirm(`Are you sure you want to delete #${index + 1} - ${levels[index].name}?`)) {
+                levels.splice(index, 1);
+                commitToGitHub();
+            }
+        }
+    </script>
+</body>
+</html>
