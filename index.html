@@ -457,15 +457,20 @@
             fetchListData();
         };
 
-        // Fetch data live from your GitHub repo's data.json
+        // Fetch data live from your GitHub repo's data.json with cache-busting
         async function fetchListData() {
             try {
-                const res = await fetch(`https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/${DATA_PATH}?t=${Date.now()}`);
+                const timestamp = new Date().getTime();
+                const res = await fetch(`https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/${DATA_PATH}?_t=${timestamp}`, {
+                    cache: "no-store"
+                });
                 if (!res.ok) throw new Error("Could not find data.json");
                 levels = await res.json();
                 
                 // Get file SHA required by GitHub API for updating later
-                const metaRes = await fetch(`https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/${DATA_PATH}`);
+                const metaRes = await fetch(`https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/${DATA_PATH}?_t=${timestamp}`, {
+                    cache: "no-store"
+                });
                 const metaData = await metaRes.json();
                 fileSha = metaData.sha;
 
@@ -478,6 +483,12 @@
         function render() {
             const container = document.getElementById('levelListContainer');
             container.innerHTML = '';
+            
+            if (levels.length === 0) {
+                container.innerHTML = `<p style="text-align:center; padding: 20px; color: #666;">No levels found in the demonlist.</p>`;
+                return;
+            }
+
             levels.forEach((lvl, index) => {
                 let thumbContent = lvl.thumb 
                     ? `<img src="${lvl.thumb}" class="level-thumbnail" style="object-fit:cover;">`
@@ -553,9 +564,11 @@
                 if (res.ok) {
                     const data = await res.json();
                     fileSha = data.content.sha;
-                    alert("Demonlist successfully updated on GitHub!");
-                    closeModal();
+                    
+                    // Instantly render UI and close modal
                     render();
+                    closeModal();
+                    alert("Demonlist successfully updated on GitHub!");
                 } else {
                     alert("Error saving data. Make sure your GitHub Token has 'repo' permissions.");
                 }
