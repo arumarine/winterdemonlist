@@ -92,68 +92,87 @@
 
         /* Main Container Layout */
         .container {
-            max-width: 1100px;
+            max-width: 1400px;
             margin: 30px auto;
             padding: 0 20px;
         }
 
         .content-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 3fr 1fr;
             gap: 30px;
             align-items: start;
         }
 
-        /* Cards with Dotted Outlines */
+        /* Search Filter Bar */
+        .filter-bar {
+            background: #fff;
+            border: 2px dotted #cbd5e1;
+            border-radius: 4px;
+            padding: 12px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-bar input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+        }
+
+        /* Grid Layout matching Pointercrate style */
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
         .card {
             background: #fff;
             border: 2px dotted #cbd5e1;
             border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            padding: 12px;
             position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 110px;
         }
 
-        /* Level Item Card */
-        .level-card {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .level-thumbnail {
-            width: 210px;
-            height: 115px;
-            background: #111;
-            border-radius: 2px;
-            object-fit: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
+        .level-card-grid h2 {
             font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-
-        .level-info h2 {
-            font-size: 20px;
             font-weight: 700;
             color: #111;
-            margin-bottom: 6px;
-        }
-
-        .level-info p {
-            font-size: 13px;
-            color: #444;
             margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .points {
-            font-size: 12px;
-            color: #666;
-            margin-top: 6px;
+        .level-card-grid p {
+            font-size: 11px;
+            color: #555;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Section Titles for Grid (Main, Extended, Legacy) */
+        .section-header {
+            grid-column: span 5;
+            font-size: 18px;
+            font-weight: 800;
+            color: #111;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 5px;
         }
 
         /* Sidebar Styling */
@@ -194,9 +213,9 @@
         .admin-controls {
             display: none;
             position: absolute;
-            top: 10px;
-            right: 10px;
-            gap: 5px;
+            top: 5px;
+            right: 5px;
+            gap: 3px;
         }
 
         body.logged-in .admin-controls {
@@ -206,11 +225,11 @@
         .btn {
             background: #eee;
             border: 1px solid #ccc;
-            padding: 3px 8px;
-            font-size: 11px;
+            padding: 2px 5px;
+            font-size: 9px;
             font-weight: 600;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
         .btn-danger {
@@ -295,7 +314,6 @@
             border-color: #111;
         }
 
-        /* Dropzone / Clipboard area */
         .dropzone {
             border: 2px dashed #cbd5e1;
             padding: 15px;
@@ -305,10 +323,6 @@
             cursor: pointer;
             font-size: 12px;
             color: #64748b;
-        }
-
-        .dropzone:hover {
-            border-color: #94a3b8;
         }
 
         .preview-thumb {
@@ -345,6 +359,11 @@
             background: #2b8a3e;
             color: white;
         }
+
+        @media (max-width: 1100px) {
+            .levels-grid { grid-template-columns: repeat(3, 1fr); }
+            .section-header { grid-column: span 3; }
+        }
     </style>
 </head>
 <body>
@@ -364,9 +383,9 @@
 
     <!-- Sub Navigation Tabs -->
     <div class="sub-nav">
-        <span id="tabMain" class="active" onclick="switchTab('main')">Main List</span>
-        <span id="tabExtended" onclick="switchTab('extended')">Extended List</span>
-        <span onclick="alert('Legacy list holds levels ranked #36 and below.')">Legacy List</span>
+        <span onclick="scrollToSection('main-section')">Main List (#1–15)</span>
+        <span onclick="scrollToSection('extended-section')">Extended List (#16–35)</span>
+        <span onclick="scrollToSection('legacy-section')">Legacy List (#36+)</span>
     </div>
 
     <!-- Main Container Layout -->
@@ -377,16 +396,22 @@
             <button class="add-btn" onclick="openAddModal()">+ Add New Level</button>
         </div>
 
+        <div class="filter-bar">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="Filter..." oninput="render()">
+            <span style="font-size: 14px; cursor: pointer;" onclick="document.getElementById('searchInput').value=''; render()">✕</span>
+        </div>
+
         <div class="content-grid">
             
-            <!-- Left Side: Level List -->
-            <div id="levelListContainer">
-                <p style="text-align:center; padding: 20px;">Loading demonlist data...</p>
+            <!-- Left Side: Grid Layout -->
+            <div id="levelsGridContainer" class="levels-grid">
+                <p style="grid-column: span 5; text-align:center; padding: 20px;">Loading demonlist data...</p>
             </div>
 
             <!-- Right Side: Sidebar (List Editors) -->
             <div class="sidebar">
-                <div class="card">
+                <div class="card" style="padding: 20px;">
                     <div class="sidebar-title">List Editors</div>
                     <div class="sidebar-subtitle">Contact any of these people if you have problems with the list or want to see a specific thing changed.</div>
                     <hr>
@@ -452,7 +477,6 @@
         let fileSha = "";
         let currentThumbData = "";
         let githubToken = localStorage.getItem('gh_admin_token') || "";
-        let currentTab = "main"; // "main" or "extended"
 
         window.onload = () => {
             if (githubToken) {
@@ -479,59 +503,69 @@
 
                 render();
             } catch (e) {
-                document.getElementById('levelListContainer').innerHTML = `<p style="color:red; text-align:center;">Failed to load data.json. Ensure file exists in your repository.</p>`;
+                document.getElementById('levelsGridContainer').innerHTML = `<p style="grid-column: span 5; color:red; text-align:center;">Failed to load data.json.</p>`;
             }
         }
 
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('tabMain').classList.toggle('active', tab === 'main');
-            document.getElementById('tabExtended').classList.toggle('active', tab === 'extended');
-            render();
+        function scrollToSection(id) {
+            let el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
 
         function render() {
-            const container = document.getElementById('levelListContainer');
+            const container = document.getElementById('levelsGridContainer');
             container.innerHTML = '';
             
             if (levels.length === 0) {
-                container.innerHTML = `<p style="text-align:center; padding: 20px; color: #666;">No levels found in the demonlist.</p>`;
+                container.innerHTML = `<p style="grid-column: span 5; text-align:center; padding: 20px; color: #666;">No levels found in the demonlist.</p>`;
                 return;
             }
 
-            // Determine slice boundaries based on active tab
-            // Main list: #1 to #15 (Indices 0 to 14)
-            // Extended list: #16 to #35 (Indices 15 to 34)
-            let startIndex = currentTab === 'main' ? 0 : 15;
-            let endIndex = currentTab === 'main' ? 15 : 35;
-            let visibleLevels = levels.slice(startIndex, endIndex);
+            let filterText = document.getElementById('searchInput').value.toLowerCase();
 
-            if (visibleLevels.length === 0) {
-                container.innerHTML = `<p style="text-align:center; padding: 20px; color: #666;">No levels in this range.</p>`;
-                return;
+            // Filter levels based on search input if active
+            let filteredLevels = levels.map((lvl, index) => ({ ...lvl, originalIndex: index }))
+                                       .filter(lvl => lvl.name.toLowerCase().includes(filterText) || lvl.publisher.toLowerCase().includes(filterText));
+
+            // Separate into Main (#1-15), Extended (#16-35), Legacy (#36+)
+            let mainList = filteredLevels.filter(lvl => lvl.originalIndex < 15);
+            let extList = filteredLevels.filter(lvl => lvl.originalIndex >= 15 && lvl.originalIndex < 35);
+            let legacyList = filteredLevels.filter(lvl => lvl.originalIndex >= 35);
+
+            // Render Main Section
+            if (mainList.length > 0 || !filterText) {
+                container.innerHTML += `<div id="main-section" class="section-header">Main List (Top 1-15)</div>`;
+                mainList.forEach(lvl => container.innerHTML += buildCardHtml(lvl, lvl.originalIndex, true));
             }
 
-            visibleLevels.forEach((lvl, subIndex) => {
-                let actualIndex = startIndex + subIndex;
-                let thumbContent = lvl.thumb 
-                    ? `<img src="${lvl.thumb}" class="level-thumbnail" style="object-fit:cover;">`
-                    : `<div class="level-thumbnail" style="background: linear-gradient(135deg, #111, #444);">${lvl.name}</div>`;
+            // Render Extended Section
+            if (extList.length > 0 || !filterText) {
+                container.innerHTML += `<div id="extended-section" class="section-header">Extended List (16-35)</div>`;
+                extList.forEach(lvl => container.innerHTML += buildCardHtml(lvl, lvl.originalIndex, true));
+            }
 
-                container.innerHTML += `
-                    <div class="card level-card">
-                        <div class="admin-controls">
-                            <button class="btn" onclick="openEditModal(${actualIndex})">Edit</button>
-                            <button class="btn btn-danger" onclick="deleteLevel(${actualIndex})">Delete</button>
-                        </div>
-                        ${thumbContent}
-                        <div class="level-info">
-                            <h2>#${actualIndex + 1} - ${lvl.name}</h2>
-                            <p>published by <a href="#">${lvl.publisher}</a></p>
-                            <div class="points">${lvl.points}</div>
-                        </div>
+            // Render Legacy Section (No numbers displayed as requested)
+            if (legacyList.length > 0) {
+                container.innerHTML += `<div id="legacy-section" class="section-header">Legacy List (36+)</div>`;
+                legacyList.forEach(lvl => container.innerHTML += buildCardHtml(lvl, lvl.originalIndex, false));
+            }
+        }
+
+        function buildCardHtml(lvl, index, showNumber) {
+            let titlePrefix = showNumber ? `#${index + 1} - ` : '';
+            return `
+                <div class="card level-card-grid">
+                    <div class="admin-controls">
+                        <button class="btn" onclick="openEditModal(${index})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteLevel(${index})">Delete</button>
                     </div>
-                `;
-            });
+                    <div>
+                        <h2>${titlePrefix}${lvl.name}</h2>
+                        <p>by ${lvl.publisher}</p>
+                    </div>
+                    <div style="font-size: 10px; color: #888; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lvl.points}</div>
+                </div>
+            `;
         }
 
         async function toggleAuth() {
@@ -620,7 +654,6 @@
             document.getElementById('modalPoints').value = lvl.points;
             document.getElementById('modalYoutube').value = "";
             
-            // Show position editor and pre-fill current position
             document.getElementById('positionGroup').style.display = 'block';
             document.getElementById('modalPosition').value = index + 1;
 
@@ -707,19 +740,11 @@
             };
 
             if (index === -1) {
-                // Adding new level
                 levels.push(levelData);
             } else {
-                // Editing existing level
                 let newPosInput = parseInt(document.getElementById('modalPosition').value);
-                
-                // Remove old instance from array temporarily
                 levels.splice(index, 1);
-
-                // Determine target insertion index (convert 1-based position to 0-based index)
                 let targetIndex = isNaN(newPosInput) ? index : Math.max(0, Math.min(levels.length, newPosInput - 1));
-                
-                // Insert at new position
                 levels.splice(targetIndex, 0, levelData);
             }
 
@@ -727,7 +752,8 @@
         }
 
         function deleteLevel(index) {
-            if (confirm(`Are you sure you want to delete #${index + 1} - ${levels[index].name}?`)) {
+            let lvlName = levels[index].name;
+            if (confirm(`Are you sure you want to delete #${index + 1} - ${lvlName}?`)) {
                 levels.splice(index, 1);
                 commitToGitHub();
             }
