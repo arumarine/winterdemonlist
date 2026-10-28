@@ -3,49 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pointercrate Demonlist</title>
+    <title>Winter Demonlist</title>
     <!-- Montserrat Font -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --text-color: #1e293b;
+            --header-bg: #ffffff;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --accent-color: #0284c7;
+            --sidebar-sub: #64748b;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --header-bg: #1e293b;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --accent-color: #38bdf8;
+            --sidebar-sub: #94a3b8;
+        }
+
         * {
             box-sizing: border-box;
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         body {
-            background-color: #f4f5f7;
-            color: #222;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
 
         /* Top Header Bar */
         .header-bar {
-            background: #ffffff;
+            background: var(--header-bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 40px;
-            border-bottom: 1px solid #d1d5db;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 14px 40px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 700;
         }
 
         .header-logo {
-            background: #d32f2f;
-            color: white;
-            padding: 4px 10px;
+            color: var(--accent-color);
+            font-size: 15px;
             font-weight: 800;
-            font-size: 13px;
             letter-spacing: 0.5px;
-            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--accent-color);
         }
 
         .auth-btn {
-            background: #111 !important;
+            background: var(--accent-color) !important;
             color: white !important;
-            padding: 5px 10px;
-            border-radius: 3px;
+            padding: 6px 12px;
+            border-radius: 4px;
             border: none;
             cursor: pointer;
             font-size: 12px;
@@ -53,7 +93,7 @@
         }
 
         .auth-btn:hover {
-            background: #d32f2f !important;
+            opacity: 0.9;
         }
 
         /* Main Container Layout */
@@ -72,12 +112,12 @@
 
         /* Cards with Dotted Outlines */
         .card {
-            background: #fff;
-            border: 2px dotted #cbd5e1;
-            border-radius: 4px;
+            background: var(--card-bg);
+            border: 2px dotted var(--border-color);
+            border-radius: 6px;
             padding: 20px;
             margin-bottom: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             position: relative;
         }
 
@@ -91,8 +131,8 @@
         .level-thumbnail {
             width: 210px;
             height: 115px;
-            background: #111;
-            border-radius: 2px;
+            background: #0f172a;
+            border-radius: 4px;
             object-fit: cover;
             display: flex;
             align-items: center;
@@ -106,19 +146,24 @@
         .level-info h2 {
             font-size: 20px;
             font-weight: 700;
-            color: #111;
+            color: var(--text-color);
             margin-bottom: 6px;
         }
 
         .level-info p {
             font-size: 13px;
-            color: #444;
+            color: var(--sidebar-sub);
             margin-bottom: 4px;
+        }
+
+        .level-info p a {
+            color: var(--accent-color);
+            text-decoration: none;
         }
 
         .points {
             font-size: 12px;
-            color: #666;
+            color: var(--sidebar-sub);
             margin-top: 6px;
         }
 
@@ -128,20 +173,20 @@
             font-weight: 700;
             text-align: center;
             margin-bottom: 6px;
-            color: #111;
+            color: var(--text-color);
         }
 
         .sidebar-subtitle {
             font-size: 11px;
             text-align: center;
-            color: #666;
+            color: var(--sidebar-sub);
             margin-bottom: 15px;
             line-height: 1.4;
         }
 
         .sidebar hr {
             border: none;
-            border-top: 1px dotted #cbd5e1;
+            border-top: 1px dotted var(--border-color);
             margin-bottom: 15px;
         }
 
@@ -153,7 +198,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            color: #333;
+            color: var(--text-color);
         }
 
         /* Admin Controls */
@@ -170,8 +215,9 @@
         }
 
         .btn {
-            background: #eee;
-            border: 1px solid #ccc;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             padding: 3px 8px;
             font-size: 11px;
             font-weight: 600;
@@ -180,9 +226,15 @@
         }
 
         .btn-danger {
-            background: #ffe3e3;
-            color: #c92a2a;
-            border-color: #ffa8a8;
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        body.dark-mode .btn-danger {
+            background: #450a0a;
+            color: #fca5a5;
+            border-color: #7f1d1d;
         }
 
         .add-level-bar {
@@ -196,13 +248,17 @@
 
         .add-btn {
             width: 100%;
-            background: #2b8a3e;
+            background: #0ea5e9;
             color: white;
             border: none;
             padding: 10px;
             font-weight: 700;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background: #0284c7;
         }
 
         /* Modal Dialog Styling */
@@ -213,27 +269,28 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(15, 23, 42, 0.6);
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
 
         .modal {
-            background: #fff;
+            background: var(--card-bg);
+            color: var(--text-color);
             padding: 30px;
             border-radius: 6px;
             width: 450px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             max-height: 90vh;
             overflow-y: auto;
+            border: 1px solid var(--border-color);
         }
 
         .modal h3 {
             font-size: 18px;
             font-weight: 700;
             margin-bottom: 15px;
-            color: #111;
         }
 
         .form-group {
@@ -245,31 +302,33 @@
             font-size: 12px;
             font-weight: 600;
             margin-bottom: 4px;
-            color: #444;
+            color: var(--sidebar-sub);
         }
 
         .form-group input, .form-group select {
             width: 100%;
             padding: 8px 12px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
             border-radius: 4px;
             font-size: 13px;
             outline: none;
         }
 
         .form-group input:focus {
-            border-color: #111;
+            border-color: var(--accent-color);
         }
 
         .dropzone {
-            border: 2px dashed #cbd5e1;
+            border: 2px dashed var(--border-color);
             padding: 15px;
             text-align: center;
             border-radius: 4px;
-            background: #f8fafc;
+            background: var(--bg-color);
             cursor: pointer;
             font-size: 12px;
-            color: #64748b;
+            color: var(--sidebar-sub);
         }
 
         .preview-thumb {
@@ -298,12 +357,12 @@
         }
 
         .btn-cancel {
-            background: #e2e8f0;
-            color: #333;
+            background: var(--border-color);
+            color: var(--text-color);
         }
 
         .btn-save {
-            background: #2b8a3e;
+            background: #10b981;
             color: white;
         }
     </style>
@@ -312,8 +371,11 @@
 
     <!-- Top Navigation Header -->
     <div class="header-bar">
-        <div class="header-logo">POINTERCRATE.COM</div>
-        <button class="auth-btn" id="authBtn" onclick="toggleAuth()">🔒 Editor Login</button>
+        <div class="header-logo">winter demonlist</div>
+        <div class="header-right">
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()">☼</button>
+            <button class="auth-btn" id="authBtn" onclick="toggleAuth()">🔒 Editor Login</button>
+        </div>
     </div>
 
     <!-- Main Container Layout -->
@@ -405,8 +467,18 @@
                 document.body.classList.add('logged-in');
                 document.getElementById('authBtn').innerText = "🔓 Logout";
             }
+            if (localStorage.getItem('dark_mode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggleBtn').innerText = "☾";
+            }
             fetchListData();
         };
+
+        function toggleDarkMode() {
+            let isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('dark_mode', isDark);
+            document.getElementById('themeToggleBtn').innerText = isDark ? "☾" : "☼";
+        }
 
         async function fetchListData() {
             try {
@@ -434,14 +506,14 @@
             container.innerHTML = '';
             
             if (levels.length === 0) {
-                container.innerHTML = `<p style="text-align:center; padding: 20px; color: #666;">No levels found in the demonlist.</p>`;
+                container.innerHTML = `<p style="text-align:center; padding: 20px; color: var(--sidebar-sub);">No levels found in the demonlist.</p>`;
                 return;
             }
 
             levels.forEach((lvl, index) => {
                 let thumbContent = lvl.thumb 
                     ? `<img src="${lvl.thumb}" class="level-thumbnail" style="object-fit:cover;">`
-                    : `<div class="level-thumbnail" style="background: linear-gradient(135deg, #111, #444);">${lvl.name}</div>`;
+                    : `<div class="level-thumbnail" style="background: linear-gradient(135deg, #0f172a, #334155);">${lvl.name}</div>`;
 
                 container.innerHTML += `
                     <div class="card level-card">
