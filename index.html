@@ -364,9 +364,9 @@
 
     <!-- Sub Navigation Tabs -->
     <div class="sub-nav">
-        <span class="active">Main List</span>
-        <span>Extended List</span>
-        <span>Legacy List</span>
+        <span id="tabMain" class="active" onclick="switchTab('main')">Main List</span>
+        <span id="tabExtended" onclick="switchTab('extended')">Extended List</span>
+        <span onclick="alert('Legacy list holds levels ranked #36 and below.')">Legacy List</span>
     </div>
 
     <!-- Main Container Layout -->
@@ -416,6 +416,10 @@
                 <label>Points Text</label>
                 <input type="text" id="modalPoints" value="35.00 (76%) — 350.00 (100%) points">
             </div>
+            <div class="form-group" id="positionGroup" style="display:none;">
+                <label>New Position (#)</label>
+                <input type="number" id="modalPosition" min="1" placeholder="e.g. 2">
+            </div>
 
             <!-- Thumbnail Input Options -->
             <div class="form-group">
@@ -448,6 +452,7 @@
         let fileSha = "";
         let currentThumbData = "";
         let githubToken = localStorage.getItem('gh_admin_token') || "";
+        let currentTab = "main"; // "main" or "extended"
 
         window.onload = () => {
             if (githubToken) {
@@ -457,7 +462,6 @@
             fetchListData();
         };
 
-        // Fetch data live from your GitHub repo's data.json with cache-busting
         async function fetchListData() {
             try {
                 const timestamp = new Date().getTime();
@@ -467,7 +471,6 @@
                 if (!res.ok) throw new Error("Could not find data.json");
                 levels = await res.json();
                 
-                // Get file SHA required by GitHub API for updating later
                 const metaRes = await fetch(`https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/${DATA_PATH}?_t=${timestamp}`, {
                     cache: "no-store"
                 });
@@ -480,6 +483,13 @@
             }
         }
 
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabMain').classList.toggle('active', tab === 'main');
+            document.getElementById('tabExtended').classList.toggle('active', tab === 'extended');
+            render();
+        }
+
         function render() {
             const container = document.getElementById('levelListContainer');
             container.innerHTML = '';
@@ -489,7 +499,20 @@
                 return;
             }
 
-            levels.forEach((lvl, index) => {
+            // Determine slice boundaries based on active tab
+            // Main list: #1 to #15 (Indices 0 to 14)
+            // Extended list: #16 to #35 (Indices 15 to 34)
+            let startIndex = currentTab === 'main' ? 0 : 15;
+            let endIndex = currentTab === 'main' ? 15 : 35;
+            let visibleLevels = levels.slice(startIndex, endIndex);
+
+            if (visibleLevels.length === 0) {
+                container.innerHTML = `<p style="text-align:center; padding: 20px; color: #666;">No levels in this range.</p>`;
+                return;
+            }
+
+            visibleLevels.forEach((lvl, subIndex) => {
+                let actualIndex = startIndex + subIndex;
                 let thumbContent = lvl.thumb 
                     ? `<img src="${lvl.thumb}" class="level-thumbnail" style="object-fit:cover;">`
                     : `<div class="level-thumbnail" style="background: linear-gradient(135deg, #111, #444);">${lvl.name}</div>`;
@@ -497,12 +520,12 @@
                 container.innerHTML += `
                     <div class="card level-card">
                         <div class="admin-controls">
-                            <button class="btn" onclick="openEditModal(${index})">Edit</button>
-                            <button class="btn btn-danger" onclick="deleteLevel(${index})">Delete</button>
+                            <button class="btn" onclick="openEditModal(${actualIndex})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteLevel(${actualIndex})">Delete</button>
                         </div>
                         ${thumbContent}
                         <div class="level-info">
-                            <h2>#${index + 1} - ${lvl.name}</h2>
+                            <h2>#${actualIndex + 1} - ${lvl.name}</h2>
                             <p>published by <a href="#">${lvl.publisher}</a></p>
                             <div class="points">${lvl.points}</div>
                         </div>
@@ -511,7 +534,6 @@
             });
         }
 
-        // Token Login / Logout Handler
         async function toggleAuth() {
             if (!githubToken) {
                 let tokenInput = prompt("Enter your GitHub Personal Access Token:");
@@ -539,7 +561,6 @@
             }
         }
 
-        // Push updates directly back to GitHub API
         async function commitToGitHub() {
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.innerText = "Saving to GitHub...";
@@ -564,8 +585,6 @@
                 if (res.ok) {
                     const data = await res.json();
                     fileSha = data.content.sha;
-                    
-                    // Instantly render UI and close modal
                     render();
                     closeModal();
                     alert("Demonlist successfully updated on GitHub!");
@@ -587,6 +606,7 @@
             document.getElementById('modalPublisher').value = "";
             document.getElementById('modalPoints').value = "35.00 (76%) — 350.00 (100%) points";
             document.getElementById('modalYoutube').value = "";
+            document.getElementById('positionGroup').style.display = 'none';
             setThumbnail("");
             document.getElementById('levelModal').style.display = 'flex';
         }
@@ -599,6 +619,11 @@
             document.getElementById('modalPublisher').value = lvl.publisher;
             document.getElementById('modalPoints').value = lvl.points;
             document.getElementById('modalYoutube').value = "";
+            
+            // Show position editor and pre-fill current position
+            document.getElementById('positionGroup').style.display = 'block';
+            document.getElementById('modalPosition').value = index + 1;
+
             setThumbnail(lvl.thumb || "");
             document.getElementById('levelModal').style.display = 'flex';
         }
@@ -619,7 +644,6 @@
             }
         }
 
-        // YouTube Thumbnail Extractor
         function fetchYoutubeThumb() {
             let url = document.getElementById('modalYoutube').value.trim();
             let videoId = "";
@@ -634,7 +658,6 @@
             }
         }
 
-        // File Selection / Drag and Drop
         function handleFileSelect(event) {
             let file = event.target.files[0];
             if (file) processFile(file);
@@ -646,7 +669,6 @@
             if (file) processFile(file);
         }
 
-        // Clipboard Paste Support
         function handlePaste(event) {
             let items = (event.clipboardData || event.originalEvent.clipboardData).items;
             for (let index in items) {
@@ -685,9 +707,20 @@
             };
 
             if (index === -1) {
+                // Adding new level
                 levels.push(levelData);
             } else {
-                levels[index] = levelData;
+                // Editing existing level
+                let newPosInput = parseInt(document.getElementById('modalPosition').value);
+                
+                // Remove old instance from array temporarily
+                levels.splice(index, 1);
+
+                // Determine target insertion index (convert 1-based position to 0-based index)
+                let targetIndex = isNaN(newPosInput) ? index : Math.max(0, Math.min(levels.length, newPosInput - 1));
+                
+                // Insert at new position
+                levels.splice(targetIndex, 0, levelData);
             }
 
             commitToGitHub();
