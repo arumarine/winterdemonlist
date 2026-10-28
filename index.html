@@ -161,12 +161,6 @@
             text-decoration: none;
         }
 
-        .points {
-            font-size: 12px;
-            color: var(--sidebar-sub);
-            margin-top: 6px;
-        }
-
         /* Sidebar Styling */
         .sidebar-title {
             font-size: 17px;
@@ -421,10 +415,6 @@
                 <label>Publisher</label>
                 <input type="text" id="modalPublisher" placeholder="e.g. icedcave">
             </div>
-            <div class="form-group">
-                <label>Points Text</label>
-                <input type="text" id="modalPoints" value="35.00 (76%) — 350.00 (100%) points">
-            </div>
             <div class="form-group" id="positionGroup" style="display:none;">
                 <label>New Position (#)</label>
                 <input type="number" id="modalPosition" min="1" placeholder="e.g. 2">
@@ -525,7 +515,6 @@
                         <div class="level-info">
                             <h2>#${index + 1} - ${lvl.name}</h2>
                             <p>published by <a href="#">${lvl.publisher}</a></p>
-                            <div class="points">${lvl.points}</div>
                         </div>
                     </div>
                 `;
@@ -602,7 +591,6 @@
             document.getElementById('editIndex').value = "-1";
             document.getElementById('modalName').value = "";
             document.getElementById('modalPublisher').value = "";
-            document.getElementById('modalPoints').value = "35.00 (76%) — 350.00 (100%) points";
             document.getElementById('modalYoutube').value = "";
             document.getElementById('positionGroup').style.display = 'none';
             setThumbnail("");
@@ -615,7 +603,6 @@
             document.getElementById('editIndex').value = index;
             document.getElementById('modalName').value = lvl.name;
             document.getElementById('modalPublisher').value = lvl.publisher;
-            document.getElementById('modalPoints').value = lvl.points;
             document.getElementById('modalYoutube').value = "";
             
             document.getElementById('positionGroup').style.display = 'block';
@@ -689,7 +676,6 @@
             let index = parseInt(document.getElementById('editIndex').value);
             let name = document.getElementById('modalName').value.trim();
             let publisher = document.getElementById('modalPublisher').value.trim();
-            let points = document.getElementById('modalPoints').value.trim();
 
             if (!name) {
                 alert("Please enter a level name.");
@@ -699,7 +685,6 @@
             let levelData = {
                 name: name,
                 publisher: publisher || "Unknown",
-                points: points,
                 thumb: currentThumbData
             };
 
